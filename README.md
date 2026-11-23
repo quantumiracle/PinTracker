@@ -3,7 +3,14 @@
 A whole-body motion tracker for the **Unitree G1 (29 DoF)**. Given a reference motion (joint angles and root pose
 over time), it outputs joint position targets at 50 Hz that make the simulated robot follow it. Trained with the
 SuperMimic model-based recipe on about **1,600 hours** of human motion extracted from Internet videos and retargeted
-to the G1.
+to the G1. Two sizes:
+
+| | policy parameters | checkpoint | AMASS tracked to the end | LAFAN1 tracked to the end |
+|---|---|---|---|---|
+| **PinTracker-S** (recommended) | 8.9 M | [`weights/pintracker_g1_small_full.pt`](weights/pintracker_g1_small_full.pt), in this repo, 36 MB | **96.2%** | **25 / 40** |
+| PinTracker-L | 90 M | [v0.1.0 release](https://github.com/quantumiracle/PinTracker/releases/tag/v0.1.0), 360 MB | 95.8% | 24 / 40 |
+
+The small one is as good and ten times lighter: with this much data, model size is not the bottleneck.
 
 **Blog post with results and sample videos:** <https://quantumiracle.github.io/PinTracker/>
 
@@ -15,18 +22,18 @@ run through the same simulator.
 
 **AMASS** — 1,202 clips of a random 1,602-clip draw from TWIST's retargeted AMASS (the clips SONIC finished on):
 
-| | PinTracker | SONIC |
-|---|---|---|
-| tracked to the end | **95.8%** | 92.2% |
-| success, SONIC paper criterion (root height off by > 0.25 m or orientation by > 1 rad = fail) | **94.2%** | 92.2% |
-| normalized tracking return | **0.859** | 0.810 |
-| root-relative MPJPE | 35 mm | **29 mm** |
-| velocity / acceleration error (mm/frame, mm/frame²) | **5.2** / 1.5 | 5.9 / 1.5 |
+| | PinTracker-S | PinTracker-L | SONIC |
+|---|---|---|---|
+| tracked to the end | **96.2%** | 95.8% | 92.2% |
+| success, SONIC paper criterion (root height off by > 0.25 m or orientation by > 1 rad = fail) | 94.0% | **94.2%** | 92.2% |
+| normalized tracking return | **0.860** | 0.859 | 0.810 |
+| root-relative MPJPE | 36 mm | 35 mm | **29 mm** |
+| velocity / acceleration error (mm/frame, mm/frame²) | **5.2** / 1.5 | **5.2** / 1.5 | 5.9 / 1.5 |
 
-**LAFAN1** — all 40 clips, 2–4.5 minutes each: PinTracker tracks 24 to the end, SONIC 25.
+**LAFAN1** — all 40 clips, 2–4.5 minutes each: PinTracker-S tracks 25 to the end, PinTracker-L 24, SONIC 25.
 
-PinTracker falls less often (53 AMASS clips it completes where SONIC falls, 10 the other way round); SONIC follows the
-body pose more closely on the clips both complete.
+PinTracker falls less often (PinTracker-S completes 57 AMASS clips where SONIC falls, SONIC 9 the other way round);
+SONIC follows the body pose more closely on the clips both complete.
 
 ## Install
 
@@ -35,11 +42,13 @@ Linux with an NVIDIA GPU (mjlab simulates on MuJoCo Warp).
 ```bash
 git clone https://github.com/quantumiracle/PinTracker.git && cd PinTracker
 pip install -e .
-scripts/download_checkpoint.sh      # -> checkpoints/pintracker_g1_big_full.pt (360 MB)
 ```
 
-The checkpoint is attached to the [v0.1.0 release](https://github.com/quantumiracle/PinTracker/releases/tag/v0.1.0)
-(sha256 `811ea2f3dd5c7f3f66d2e2d7a08ddbd4510ee8e4d11fbd68aea1d5d12b6cf55c`).
+PinTracker-S comes with the clone (`weights/pintracker_g1_small_full.pt`, sha256
+`034f723de19dc5108f7d5b40090d6ce3bad6b138e686a0222567d21940c88189`). For PinTracker-L, run
+`scripts/download_checkpoint.sh` (-> `checkpoints/pintracker_g1_big_full.pt`, 360 MB, from the
+[v0.1.0 release](https://github.com/quantumiracle/PinTracker/releases/tag/v0.1.0); sha256
+`811ea2f3dd5c7f3f66d2e2d7a08ddbd4510ee8e4d11fbd68aea1d5d12b6cf55c`).
 
 ## Quick start
 
@@ -47,7 +56,7 @@ The checkpoint is attached to the [v0.1.0 release](https://github.com/quantumira
 # your motions -> 50 Hz clips (GMR / TWIST style pickles; 23- or 29-DoF G1)
 python scripts/convert_motion.py motions/*.pkl --out clips/
 # track them in simulation: per-clip metrics and videos (robot solid, reference blue ghost)
-python scripts/track.py --ckpt checkpoints/pintracker_g1_big_full.pt --clips clips/ --videos out/videos
+python scripts/track.py --ckpt weights/pintracker_g1_small_full.pt --clips clips/ --videos out/videos
 ```
 
 From Python:
@@ -56,7 +65,7 @@ From Python:
 from pintracker import load_policy
 from pintracker.track import track, summarize, render
 
-policy = load_policy("checkpoints/pintracker_g1_big_full.pt")
+policy = load_policy("weights/pintracker_g1_small_full.pt")   # or checkpoints/pintracker_g1_big_full.pt
 env, rows, rollout = track(policy, ["clips/walk.npz", "clips/dance.npz"])
 print(summarize(rows))            # success rate, return, MPJPE, ...
 render(env, rollout, "out/videos")
@@ -97,18 +106,19 @@ world frame; on hardware this needs a global estimate of the torso pose.
 
 ## Model and training
 
-The policy is a goal encoder and a proprioception decoder (widths 7680, 3840, 1920, 960; 90 M parameters) whose output
-is a residual on the next reference pose; the checkpoint holds the exponential moving average of its weights. It was
-trained with SuperMimic's model-based reinforcement learning (a learned world model and imagined rollouts), with
-randomized foot friction, joint offsets and torso center of mass, plus observation and action noise: first on a
-100 h subset of the motion data, then on all of it, about 16 GPU-hours in total.
+The policy is a goal encoder and a proprioception decoder whose output is a residual on the next reference pose; the
+checkpoints hold the exponential moving average of its weights. Hidden widths are 2048, 1024, 512, 256 for
+PinTracker-S (8.9 M parameters) and 7680, 3840, 1920, 960 for PinTracker-L (90 M). Both were trained with SuperMimic's
+model-based reinforcement learning (a learned world model and imagined rollouts), with randomized foot friction, joint
+offsets and torso center of mass, plus observation and action noise: first on a 100 h subset of the motion data, then
+on all of it. PinTracker-S took about 12 GPU-hours in total, PinTracker-L about 16.
 
 ## Limitations
 
 - Simulation only; not yet tested on a real robot.
 - Does not track falls and get-ups or lying on the floor.
-- Root-relative MPJPE is 6 mm higher than SONIC's on AMASS.
-- 90 M parameters (360 MB in float32).
+- Root-relative MPJPE is 6–7 mm higher than SONIC's on AMASS.
+- PinTracker-L is large (90 M parameters, 360 MB); prefer PinTracker-S.
 
 ## Acknowledgements and licenses
 

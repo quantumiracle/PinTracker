@@ -1,6 +1,6 @@
 """Track reference clips in simulation and report metrics (and optionally write videos).
 
-  python scripts/track.py --ckpt checkpoints/pintracker_g1_big_full.pt --clips path/to/clips_dir --videos out/videos
+  python scripts/track.py --ckpt weights/pintracker_g1_small_full.pt --clips path/to/clips_dir --videos out/videos
 """
 
 from __future__ import annotations
