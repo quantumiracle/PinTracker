@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PinTracker 使用说明</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #f4f6f7; --surface: #ffffff; --ink: #15202a; --muted: #586874; --line: #d7dfe4;
+  --track: #e3e9ed; --accent: #0f6f78; --dim: #9aabb6; --good: #1b7a4a; --bad: #bf3a2b; --code: #eef2f4;
+  --sans: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151a; --surface: #172028; --ink: #e5ecf1; --muted: #93a2ae; --line: #2a3742;
+  --track: #25313b; --accent: #4fc2c9; --dim: #4f606c; --good: #52c48d; --bad: #f07b6c; --code: #1d2830; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f151a; --surface: #172028; --ink: #e5ecf1; --muted: #93a2ae; --line: #2a3742;
+  --track: #25313b; --accent: #4fc2c9; --dim: #4f606c; --good: #52c48d; --bad: #f07b6c; --code: #1d2830; color-scheme: dark }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 40px 16px 64px; display: flex; flex-direction: column; gap: 44px; }
+h1 { font-size: 30px; font-weight: 600; line-height: 1.25; margin: 0; }
+h2 { font-size: 19px; font-weight: 600; margin: 0 0 4px; }
+h3 { font-size: 15px; font-weight: 600; margin: 8px 0 0; }
+p { margin: 0; max-width: 66ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--accent); }
+.sub { color: var(--muted); }
+header, section { display: flex; flex-direction: column; gap: 14px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+code { font-family: var(--mono); font-size: 13px; background: var(--code); padding: 1px 4px; border-radius: 3px; }
+pre { margin: 0; background: var(--code); border-radius: 6px; padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+pre code { background: none; padding: 0; }
+.note { font-size: 14px; color: var(--muted); max-width: 70ch; }
+ul { margin: 0; padding-left: 1.3em; max-width: 70ch; display: flex; flex-direction: column; gap: 6px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+.kpi .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
+.kpi .v small { font-size: 14px; color: var(--muted); margin-left: 6px; }
+.kpi .l { font-size: 13px; color: var(--muted); }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px 32px; }
+.btitle { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.brow { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 7.5em; gap: 10px; align-items: center; padding: 4px 0; font-size: 14px; }
+.bar { height: 12px; background: var(--track); border-radius: 0 4px 4px 0; position: relative; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--dim); border-radius: 0 4px 4px 0; }
+.brow.hi .bar i { background: var(--accent); }
+.brow.ref { color: var(--muted); }
+.brow.ref .bar i { background: transparent; border: 1px dashed var(--dim); }
+.bv { text-align: right; font-size: 13px; }
+.bv small { color: var(--muted); font-size: 11px; margin-left: 4px; }
+.tablebox { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+th { font-weight: 500; color: var(--muted); font-size: 13px; }
+td.win { color: var(--accent); font-weight: 600; }
+.vg { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 500px), 1fr)); gap: 14px; }
+.vg figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.vg figcaption { padding: 8px 10px; font-size: 13px; display: flex; justify-content: space-between; gap: 8px; color: var(--muted); }
+.vg .nm { font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere; color: var(--ink); }
+.fn { font-size: 12px; color: var(--muted); padding: 0 10px 6px; }
+.vp { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.vc { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); padding-bottom: 8px; min-width: 0; }
+.vc > span { padding: 0 8px; }
+.vc .who { font-weight: 600; color: var(--ink); padding-top: 6px; }
+.vc video { width: 100%; display: block; background: #000; }
+.nov { aspect-ratio: 16/9; display: grid; place-items: center; background: var(--track); }
+.good { color: var(--good); font-weight: 500; } .bad { color: var(--bad); font-weight: 500; }
+.io { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.io div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; font-size: 14px; }
+.io b { display: block; font-family: var(--mono); font-weight: 500; margin-bottom: 4px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; max-width: 80ch; }
+@media (max-width: 640px) { h1 { font-size: 24px; } .brow { grid-template-columns: 6.5em minmax(0, 1fr) 6.5em; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PINTRACKER · v0.1.0 · UNITREE G1 29 DOF</div>
+  <h1>PinTracker：G1 全身动作跟踪器</h1>
+  <p class="sub">输入一段参考动作（关节角和根节点位姿随时间的变化），PinTracker 以 50 Hz 输出关节目标位置，让仿真中的 G1 跟着做。它用 SuperMimic 的基于模型的训练方法，在 Movens-5M 的 1,592 小时参考动作上训练。在两个它没见过的测试集上，它跟到底的比例与 NVIDIA 的 SONIC 相当或更高。<b>内部研究版本：权重和本页的样例视频都不得对外分发。</b></p>
+</header>
+
+<section>
+  <div class="kpis">
+    <div class="kpi"><div class="v">95.8%<small>SONIC 92.2%</small></div><div class="l">AMASS 1,202 条跟到底的比例</div></div>
+    <div class="kpi"><div class="v">24/40<small>SONIC 25/40</small></div><div class="l">LAFAN1 40 条（147 分钟）跟到底的条数</div></div>
+    <div class="kpi"><div class="v">1,592 h</div><div class="l">训练用的参考动作（Movens-5M，48 万条）</div></div>
+    <div class="kpi"><div class="v">~16<small>GPU·h</small></div><div class="l">训练算力（SONIC 约 9,000）</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>成功率对比</h2>
+  <p class="sub">全部在 MuJoCo（mjlab 的 G1 模型）里评测：每条片段从第一帧开始播放一遍，不加随机化和噪声。PinTracker 和 SONIC 都没在这两个测试集上训练过。SONIC 是 NVIDIA 公开发布的 GEAR-SONIC 权重，跑在同一个仿真里。虚线条是在 LAFAN1 这 40 条上直接训练的策略，只作为上限参考。</p>
+  <div class="chart"><div class="bars"><div class="btitle">AMASS · 1,202 条 · 跟到底的比例</div><div class="brow hi"><span class="bn">PinTracker</span><div class="bar"><i style="width:95.8%"></i></div><span class="num bv">95.8%<small>1,151/1,202</small></span></div><div class="brow "><span class="bn">SONIC</span><div class="bar"><i style="width:92.2%"></i></div><span class="num bv">92.2%<small>1,108/1,202</small></span></div></div><div class="bars"><div class="btitle">LAFAN1 · 40 条 · 跟到底的比例</div><div class="brow hi"><span class="bn">PinTracker</span><div class="bar"><i style="width:60.0%"></i></div><span class="num bv">60.0%<small>24/40</small></span></div><div class="brow "><span class="bn">SONIC</span><div class="bar"><i style="width:62.5%"></i></div><span class="num bv">62.5%<small>25/40</small></span></div><div class="brow ref"><span class="bn">LAFAN1 训练的策略</span><div class="bar"><i style="width:100.0%"></i></div><span class="num bv">100.0%<small>40/40</small></span></div></div></div>
+  <div class="tablebox"><table>
+    <thead><tr><th>AMASS 1,202 条</th><th>PinTracker</th><th>SONIC</th></tr></thead>
+    <tbody>
+      <tr><td>跟到底（我们的终止条件：躯干高度偏差 &gt; 0.25 m 或倾斜偏差 &gt; 0.8）</td><td class="num win">95.8%</td><td class="num">92.2%</td></tr>
+      <tr><td>SONIC 论文口径成功率（根高度偏差 &gt; 0.25 m 或根朝向偏差 &gt; 1 rad 算失败）</td><td class="num win">94.2%</td><td class="num">92.2%</td></tr>
+      <tr><td>归一化回报</td><td class="num win">0.859</td><td class="num">0.810</td></tr>
+      <tr><td>根相对 MPJPE</td><td class="num">35 mm</td><td class="num win">29 mm</td></tr>
+      <tr><td>速度误差 / 加速度误差（mm/帧，mm/帧²）</td><td class="num win">5.2 / 1.5</td><td class="num">5.9 / 1.5</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">AMASS 是从 TWIST 重定向好的 AMASS 动作里按固定种子随机抽的 1,602 条（5.7 小时），这里只统计 SONIC 跑完的 1,202 条；在全部 1,602 条上 PinTracker 跟到底 1,536 条（95.9%）。不是 SONIC 论文里那 9 小时的子集，数字只能和论文大致对照。SONIC 看不到参考根位置，整体会漂移，所以回报偏低；它的 MPJPE 更低，说明在跟住的片段上它的姿态更准。</p>
+</section>
+
+<section>
+  <h2>样例：AMASS</h2>
+  <p class="sub">左边 PinTracker，右边 SONIC，同一个仿真。蓝色半透明是参考动作，实体是仿真里的机器人。</p>
+  <h3>两者都跟到底</h3>
+  <div class="vg"><figure><figcaption><span class="nm">biomotionlab_ntroje__rub017_0021_catching_and_throwing</span><span class="num">18.9 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_biomotionlab_ntroje__rub017_0021_catching_and_throwing.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.97</span> · 局部误差 <span class="num">1.9 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure><figure><figcaption><span class="nm">grab__s4_spherelarge_inspect_1_stageii</span><span class="num">7.5 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_grab__s4_spherelarge_inspect_1_stageii.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.97</span> · 局部误差 <span class="num">1.6 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure><figure><figcaption><span class="nm">kit__in_out_rotation_with_help_03</span><span class="num">6.2 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_kit__in_out_rotation_with_help_03.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.98</span> · 局部误差 <span class="num">1.0 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure><figure><figcaption><span class="nm">cmu__73_03</span><span class="num">15.4 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_cmu__73_03.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.98</span> · 局部误差 <span class="num">1.5 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure></div>
+  <h3>PinTracker 跟到底，SONIC 摔倒</h3>
+  <p class="note">1,202 条里这种情况有 53 条，反过来（SONIC 跟到底、PinTracker 摔倒）只有 10 条。</p>
+  <div class="vg"><figure><figcaption><span class="nm">bmlmovi__Subject_12_F_7</span><span class="num">16.3 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_bmlmovi__Subject_12_F_7.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.80</span> · 局部误差 <span class="num">6.7 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure><figure><figcaption><span class="nm">cmu__15_10</span><span class="num">23.2 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_cmu__15_10.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.88</span> · 局部误差 <span class="num">3.9 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure><figure><figcaption><span class="nm">biomotionlab_ntroje__rub012_0015_sitting1</span><span class="num">12.3 s</span></figcaption><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/amass/pin_biomotionlab_ntroje__rub012_0015_sitting1.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.88</span> · 局部误差 <span class="num">4.5 cm</span></span></div><div class="vc"><span class="who">SONIC</span><div class="nov">视频缺失</div></div></div></figure></div>
+</section>
+
+<section>
+  <h2>样例：LAFAN1</h2>
+  <p class="sub">LAFAN1 的片段都在 2–4.5 分钟，视频只截前 40 秒；整段结果写在每条下面。</p>
+  <div class="vg"><figure><figcaption><span class="nm">dance2_subject3</span><span class="num">225.7 s</span></figcaption><p class=fn>整段 226 秒：PinTracker 跟到底；SONIC 也跟到底。视频只截前 40 秒。</p><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/lafan1/pin_dance2_subject3.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.82</span> · 局部误差 <span class="num">3.7 cm</span></span></div><div class="vc"><span class="who">SONIC</span><video src="media/lafan1/sonic_dance2_subject3.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.74</span> · 局部误差 <span class="num">3.1 cm</span></span></div></div></figure><figure><figcaption><span class="nm">sprint1_subject2</span><span class="num">273.1 s</span></figcaption><p class=fn>整段 273 秒：PinTracker 跟到底；SONIC 在 79 秒时摔倒。视频只截前 40 秒。</p><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/lafan1/pin_sprint1_subject2.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.64</span> · 局部误差 <span class="num">5.6 cm</span></span></div><div class="vc"><span class="who">SONIC</span><video src="media/lafan1/sonic_sprint1_subject2_FALL.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="bad">79.1 s 时摔倒</b> · 回报 <span class="num">0.21</span> · 局部误差 <span class="num">3.0 cm</span></span></div></div></figure><figure><figcaption><span class="nm">jumps1_subject1</span><span class="num">244.4 s</span></figcaption><p class=fn>整段 244 秒：PinTracker 跟到底；SONIC 在 224 秒时摔倒。视频只截前 40 秒。</p><div class="vp"><div class="vc"><span class="who">PinTracker</span><video src="media/lafan1/pin_jumps1_subject1.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="good">跟到底</b> · 回报 <span class="num">0.61</span> · 局部误差 <span class="num">5.7 cm</span></span></div><div class="vc"><span class="who">SONIC</span><video src="media/lafan1/sonic_jumps1_subject1_FALL.mp4" controls muted loop playsinline preload="metadata"></video><span><b class="bad">224.5 s 时摔倒</b> · 回报 <span class="num">0.62</span> · 局部误差 <span class="num">3.3 cm</span></span></div></div></figure></div>
+</section>
+
+<section>
+  <h2>怎么用</h2>
+  <h3>安装</h3>
+  <p class="sub">需要 Linux 和 NVIDIA GPU（mjlab 用 MuJoCo Warp 在 GPU 上仿真）。权重在仓库的 v0.1.0 Release 附件里（360 MB）。</p>
+<pre><code>git clone git@github.com:quantumiracle/PinTracker.git && cd PinTracker
+pip install -e .
+scripts/download_checkpoint.sh   # 需要 gh auth login，且有该私有仓库的权限</code></pre>
+  <h3>跟踪自己的动作</h3>
+<pre><code># 1. 动作转成 50 Hz 的片段（支持 GMR / TWIST / Movens 格式的 pkl，23 或 29 自由度的 G1）
+python scripts/convert_motion.py motions/*.pkl --out clips/
+# 2. 在仿真里跟踪，输出每条的指标和视频（实体是机器人，蓝色半透明是参考）
+python scripts/track.py --ckpt checkpoints/pintracker_g1_big_full.pt --clips clips/ --videos out/videos</code></pre>
+<pre><code>from pintracker import load_policy
+from pintracker.track import track, summarize, render
+
+policy = load_policy("checkpoints/pintracker_g1_big_full.pt")
+env, rows, rollout = track(policy, ["clips/walk.npz", "clips/dance.npz"])
+print(summarize(rows))          # 成功率、回报、MPJPE …
+render(env, rollout, "out/videos")</code></pre>
+  <h3>动作格式</h3>
+  <p class="sub">每条片段一个 <code>.npz</code>，50 Hz、float32：<code>root_pos</code>（T×3，骨盆位置，m，z 朝上）、<code>root_quat</code>（T×4，<b>wxyz</b>）、<code>root_v</code> 和 <code>root_w</code>（T×3，世界系）、<code>joint_pos</code> 和 <code>joint_vel</code>（T×29，按 mjlab G1 的关节顺序：左腿 6、右腿 6、腰 3、左臂 7、右臂 7）、<code>fps</code>=50。转换脚本会从任意帧率重采样并算出速度，23 自由度的动作手腕补 0。</p>
+  <h3>策略接口（50 Hz 调用）</h3>
+  <div class="io">
+    <div><b>hist (B, 10, 93)</b>最近 10 帧本体感知，最新的在最后：关节角减默认姿态（29）、关节速度（29）、骨盆系角速度（3）、骨盆系重力方向（3）、上一步动作（29）。</div>
+    <div><b>goal (B, 670)</b>未来 10 帧参考（t+1 … t+10），每帧 67 维：参考关节角（29）、参考关节速度 / 5（29）、参考躯干位置在机器人躯干系下的坐标（3）、参考躯干相对机器人躯干的朝向（6 维旋转）。</div>
+    <div><b>action (B, 29)</b>归一化动作：关节目标 = 默认姿态 + 动作尺度 × action。默认姿态和动作尺度存在检查点里（<code>policy.ref_q0</code>、<code>policy.ref_scale</code>），PD 增益用 mjlab 的 G1 配置。</div>
+  </div>
+  <p class="note">goal 里有参考躯干相对机器人躯干的位置，所以它会纠正全局漂移；上真机时需要躯干的全局位姿估计（动捕或状态估计）。每个量的精确定义见 <code>pintracker/task.py</code>。</p>
+</section>
+
+<section>
+  <h2>模型和训练</h2>
+  <ul>
+    <li><b>策略</b>：目标编码器 670 → 7680 → 3840 → 1920 → 960 → 32（tanh），解码器 32 + 10×93 → 7680 → 3840 → 1920 → 960 → 29，ELU，共 90M 参数；输出是对下一帧参考姿态的残差。检查点存的是权重的 EMA 平均（衰减 0.995），也就是评测用的版本。</li>
+    <li><b>训练方法</b>：SuperMimic 的基于模型的配方（世界模型 3×3584，32 步想象，Muon 优化器），训练时随机化脚底摩擦、关节零偏和躯干质心，并加观测噪声和动作噪声。</li>
+    <li><b>三个阶段</b>：先在 100 小时的 Movens 子集上训 9,200 次（8×H100）；再在全量 1,592 小时上训 2,000 次（8×H200，32,768 个并行环境，学习率 4e-4）；最后在全量上再训 1,000 次（策略先冻结 300 次，再用 500 次把学习率预热到 1e-4）。合计约 16 GPU·时。</li>
+  </ul>
+</section>
+
+<section>
+  <h2>局限</h2>
+  <ul>
+    <li>只在仿真里验证过，没上过真机。</li>
+    <li>模型大：90M 参数，float32 权重 360 MB。</li>
+    <li>LAFAN1 的 6 条摔倒后爬起的片段全部失败（躺在地上的动作跟不住）；其余失败都发生在几分钟长的走路、格斗、舞蹈片段的后段（1–4 分钟之后）。</li>
+    <li>姿态精度比 SONIC 差一点：AMASS 上的 MPJPE 是 35 mm，SONIC 是 29 mm。</li>
+  </ul>
+</section>
+
+<footer>
+  权重在 Movens-5M（许可证 "other"，未授予再分发权）上训练，仅限内部研究使用。评测数据不在仓库里：AMASS（经 TWIST 重定向，仅限非商业研究、不得再分发）、LAFAN1（Ubisoft，CC BY-NC-ND 4.0）。本页样例视频是这些动作的仿真渲染，请勿外传。SONIC 仅用于对比，权重为 NVIDIA Open Model License，不在仓库里。
+</footer>
+
+</div>
+</body>
+</html>

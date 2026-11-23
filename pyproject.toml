@@ -1,0 +1,19 @@
+[project]
+name = "pintracker"
+version = "0.1.0"
+description = "Whole-body motion tracker for the Unitree G1, trained on 1,592 h of Movens-5M motion"
+requires-python = ">=3.12"
+dependencies = [
+  "torch>=2.5",
+  "numpy",
+  "mujoco",
+  "imageio[ffmpeg]",
+  "mjlab @ git+https://github.com/mujocolab/mjlab@8bb2bc9e187797689ec82c78c35019afd2fd0376",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pintracker"]
