@@ -5,10 +5,10 @@ over time), it outputs joint position targets at 50 Hz that make the simulated r
 SuperMimic model-based recipe on about **1,600 hours** of human motion extracted from Internet videos and retargeted
 to the G1. Two sizes:
 
-| | policy parameters | checkpoint | AMASS tracked to the end | LAFAN1 tracked to the end |
-|---|---|---|---|---|
-| **PinTracker-S** (recommended) | 8.9 M | [`weights/pintracker_g1_small_full.pt`](weights/pintracker_g1_small_full.pt), in this repo, 36 MB | **96.2%** | **25 / 40** |
-| PinTracker-L | 90 M | [v0.1.0 release](https://github.com/quantumiracle/PinTracker/releases/tag/v0.1.0), 360 MB | 95.8% | 24 / 40 |
+| | policy parameters | checkpoint | AMASS tracked to the end |
+|---|---|---|---|
+| **PinTracker-S** (recommended) | 8.9 M | [`weights/pintracker_g1_small_full.pt`](weights/pintracker_g1_small_full.pt), in this repo, 36 MB | **96.2%** |
+| PinTracker-L | 90 M | [v0.1.0 release](https://github.com/quantumiracle/PinTracker/releases/tag/v0.1.0), 360 MB | 95.8% |
 
 The small one is as good and ten times lighter: with this much data, model size is not the bottleneck.
 
@@ -17,7 +17,7 @@ The small one is as good and ten times lighter: with this much data, model size 
 ## Results
 
 Simulation results in MuJoCo (mjlab G1). Each clip plays once from its first frame, without domain randomization
-or observation noise. Neither PinTracker nor SONIC was trained on these sets; SONIC is NVIDIA's released GEAR-SONIC,
+or observation noise. Neither PinTracker nor SONIC was trained on this set; SONIC is NVIDIA's released GEAR-SONIC,
 run through the same simulator.
 
 **AMASS** — 1,202 clips of a random 1,602-clip draw from TWIST's retargeted AMASS (the clips SONIC finished on):
@@ -29,8 +29,6 @@ run through the same simulator.
 | normalized tracking return | **0.860** | 0.859 | 0.810 |
 | root-relative MPJPE | 36 mm | 35 mm | **29 mm** |
 | velocity / acceleration error (mm/frame, mm/frame²) | **5.2** / 1.5 | **5.2** / 1.5 | 5.9 / 1.5 |
-
-**LAFAN1** — all 40 clips, 2–4.5 minutes each: PinTracker-S tracks 25 to the end, PinTracker-L 24, SONIC 25.
 
 PinTracker falls less often (PinTracker-S completes 57 AMASS clips where SONIC falls, SONIC 9 the other way round);
 SONIC follows the body pose more closely on the clips both complete.
@@ -123,7 +121,7 @@ on all of it. PinTracker-S took about 12 GPU-hours in total, PinTracker-L about 
 ## Acknowledgements and licenses
 
 - Evaluation data, not included: [AMASS](https://amass.is.tue.mpg.de/) (retargeted by
-  [TWIST](https://github.com/YanjieZe/TWIST)) and [LAFAN1](https://github.com/ubisoft/ubisoft-laforge-animation-dataset).
+  [TWIST](https://github.com/YanjieZe/TWIST)).
   The sample videos are simulator renders of AMASS motions, shown for illustration.
 - [SONIC](https://nvlabs.github.io/GEAR-SONIC/) (NVIDIA Open Model License) is used for comparison only and is not
   included.

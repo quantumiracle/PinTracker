@@ -40,7 +40,7 @@ ul { margin: 0; padding-left: 1.3em; max-width: 70ch; display: flex; flex-direct
 .kpi .v small { font-size: 14px; color: var(--muted); margin-left: 6px; }
 .kpi .l { font-size: 13px; color: var(--muted); }
 .chart { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px 32px; }
+  grid-template-columns: 1fr; gap: 18px 32px; }
 .btitle { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .brow { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 7.5em; gap: 10px; align-items: center; padding: 4px 0; font-size: 14px; }
 .bar { height: 12px; background: var(--track); border-radius: 0 4px 4px 0; position: relative; }
@@ -101,8 +101,8 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 
 <section>
   <h2>结果</h2>
-  <p class="sub">在 MuJoCo 里评测：每条片段从第一帧开始播放一遍，不加随机化和噪声。AMASS 和 LAFAN1 都不在 PinTracker 的训练数据里，SONIC 也没有在它们上训练过。SONIC 用的是 NVIDIA 公开发布的权重，跑在同一个仿真里。</p>
-  <div class="chart"><div class="bars"><div class="btitle">AMASS · 1,202 条 · 跟到底的比例</div><div class="brow hi"><span class="bn">PinTracker-S</span><div class="bar"><i style="width:96.2%"></i></div><span class="num bv">96.2%<small>1,156/1,202</small></span></div><div class="brow hi"><span class="bn">PinTracker-L</span><div class="bar"><i style="width:95.8%"></i></div><span class="num bv">95.8%<small>1,151/1,202</small></span></div><div class="brow "><span class="bn">SONIC</span><div class="bar"><i style="width:92.2%"></i></div><span class="num bv">92.2%<small>1,108/1,202</small></span></div></div><div class="bars"><div class="btitle">LAFAN1 · 40 条长片段 · 跟到底的比例</div><div class="brow hi"><span class="bn">PinTracker-S</span><div class="bar"><i style="width:62.5%"></i></div><span class="num bv">62.5%<small>25/40</small></span></div><div class="brow hi"><span class="bn">PinTracker-L</span><div class="bar"><i style="width:60.0%"></i></div><span class="num bv">60.0%<small>24/40</small></span></div><div class="brow "><span class="bn">SONIC</span><div class="bar"><i style="width:62.5%"></i></div><span class="num bv">62.5%<small>25/40</small></span></div></div></div>
+  <p class="sub">在 MuJoCo 里评测：每条片段从第一帧开始播放一遍，不加随机化和噪声。AMASS 不在 PinTracker 的训练数据里，SONIC 也没有在它上面训练过。SONIC 用的是 NVIDIA 公开发布的权重，跑在同一个仿真里。</p>
+  <div class="chart"><div class="bars"><div class="btitle">AMASS · 1,202 条 · 跟到底的比例</div><div class="brow hi"><span class="bn">PinTracker-S</span><div class="bar"><i style="width:96.2%"></i></div><span class="num bv">96.2%<small>1,156/1,202</small></span></div><div class="brow hi"><span class="bn">PinTracker-L</span><div class="bar"><i style="width:95.8%"></i></div><span class="num bv">95.8%<small>1,151/1,202</small></span></div><div class="brow "><span class="bn">SONIC</span><div class="bar"><i style="width:92.2%"></i></div><span class="num bv">92.2%<small>1,108/1,202</small></span></div></div></div>
   <div class="tablebox"><table>
     <thead><tr><th>AMASS（1,202 条）</th><th>PinTracker-S</th><th>PinTracker-L</th><th>SONIC</th></tr></thead>
     <tbody>
@@ -113,7 +113,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
       <tr><td>速度误差 / 加速度误差（mm/帧，mm/帧²）</td><td class="num win">5.2 / 1.5</td><td class="num win">5.2 / 1.5</td><td class="num">5.9 / 1.5</td></tr>
     </tbody>
   </table></div>
-  <p class="note">PinTracker 更少摔倒：1,202 条里有 57 条是 PinTracker-S 跟到底而 SONIC 摔倒，反过来只有 9 条（PinTracker-L 是 53 对 10）。SONIC 的姿态误差更小，在两者都跟住的片段上它的身体姿态更贴近参考。AMASS 测试集是从 TWIST 重定向好的 AMASS 动作里按固定种子随机抽的 1,602 条，这里统计 SONIC 跑完的 1,202 条；它不是 SONIC 论文里的那个子集，数字只能和论文大致对照。LAFAN1 的 40 条都是 2–4.5 分钟的长片段，两者都会在摔倒后爬起这类动作上失败，跟到底的条数基本持平。</p>
+  <p class="note">PinTracker 更少摔倒：1,202 条里有 57 条是 PinTracker-S 跟到底而 SONIC 摔倒，反过来只有 9 条（PinTracker-L 是 53 对 10）。SONIC 的姿态误差更小，在两者都跟住的片段上它的身体姿态更贴近参考。AMASS 测试集是从 TWIST 重定向好的 AMASS 动作里按固定种子随机抽的 1,602 条，这里统计 SONIC 跑完的 1,202 条；它不是 SONIC 论文里的那个子集，数字只能和论文大致对照。</p>
 </section>
 
 <section>
@@ -146,7 +146,7 @@ python scripts/track.py --ckpt weights/pintracker_g1_small_full.pt --clips clips
 </section>
 
 <footer>
-  评测动作来自 AMASS（经 TWIST 重定向）和 LAFAN1；样例视频是 AMASS 动作的仿真渲染，仅用于展示。SONIC 为 NVIDIA 发布的 GEAR-SONIC 权重（NVIDIA Open Model License），仅用于对比，不包含在本项目中。
+  评测动作来自 AMASS（经 TWIST 重定向）；样例视频是 AMASS 动作的仿真渲染，仅用于展示。SONIC 为 NVIDIA 发布的 GEAR-SONIC 权重（NVIDIA Open Model License），仅用于对比，不包含在本项目中。
 </footer>
 
 </div>
