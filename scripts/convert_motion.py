@@ -1,6 +1,6 @@
 """Reference motions -> PinTracker clips (50 Hz npz).
 
-  python scripts/convert_motion.py motions/*.pkl --out clips/            # GMR / TWIST / Movens pickles (xyzw quats)
+  python scripts/convert_motion.py motions/*.pkl --out clips/            # GMR / TWIST pickles (xyzw quats)
   python scripts/convert_motion.py walk.npz --out clips/ --quat-order wxyz  # npz with fps, root_pos, root_rot, dof_pos
 """
 

@@ -1,5 +1,5 @@
 """PinTracker: a whole-body motion tracker for the Unitree G1 (29 DoF), trained with SuperMimic's model-based
-recipe on 1,592 h of Movens-5M reference motion. See README.md for the interface."""
+recipe on about 1,600 h of motion extracted from Internet videos. See README.md for the interface."""
 
 from __future__ import annotations
 

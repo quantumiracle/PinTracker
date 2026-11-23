@@ -58,7 +58,7 @@ def to_clip(root_pos, root_quat, joint_pos, fps: float, quat_order: str = "wxyz"
 
 
 def convert_pickle(path: str, out: str, quat_order: str = "xyzw"):
-  """GMR / TWIST / Movens style pickle (fps, root_pos, root_rot, dof_pos) -> clip npz."""
+  """GMR / TWIST style pickle (fps, root_pos, root_rot, dof_pos) -> clip npz."""
   d = load_pickle(path)
   clip = to_clip(d["root_pos"], d["root_rot"], d["dof_pos"], float(d["fps"]), quat_order)
   np.savez(out, **clip)

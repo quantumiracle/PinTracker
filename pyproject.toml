@@ -1,7 +1,7 @@
 [project]
 name = "pintracker"
 version = "0.1.0"
-description = "Whole-body motion tracker for the Unitree G1, trained on 1,592 h of Movens-5M motion"
+description = "Whole-body motion tracker for the Unitree G1, trained on about 1,600 h of motion from Internet videos"
 requires-python = ">=3.12"
 dependencies = [
   "torch>=2.5",
