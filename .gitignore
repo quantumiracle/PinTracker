@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 results.json
 out/
+.DS_Store

@@ -126,12 +126,6 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 </section>
 
 <section>
-  <h2>怎么做的</h2>
-  <p>PinTracker 沿用 SuperMimic 的基于模型的强化学习配方：一边在仿真里收集经验，一边训练一个预测机器人动力学的世界模型，再在世界模型的想象轨迹里优化策略。策略是一个编码器-解码器网络（PinTracker-S 900 万参数，PinTracker-L 9,000 万参数），输入未来 10 帧参考动作和最近 10 帧本体感知，输出相对下一帧参考姿态的关节修正量。训练数据是约 1,600 小时从网络视频中提取、再重定向到 G1 的人体动作；训练时随机化地面摩擦、关节零偏和躯干质心，并加入观测和动作噪声。</p>
-  <p class="note">数据量和模型大小都有用，数据量的作用更大。只用 100 小时动作时，把策略加宽 10 倍（900 万 → 9,000 万参数），AMASS 上完整跟到底的比例从 92.2% 升到 93.7%；同样的大模型把训练动作扩到约 1,600 小时，又升到 95.8%；而小模型在约 1,600 小时上训练后达到 96.2%，和大模型相当。</p>
-</section>
-
-<section>
   <h2>试一试</h2>
   <p class="sub">需要 Linux 和 NVIDIA GPU。PinTracker-S 的权重随仓库一起下载（36 MB），PinTracker-L 在 GitHub Release 里；接口和动作格式见仓库 README。</p>
 <pre><code>git clone https://github.com/quantumiracle/PinTracker.git && cd PinTracker
